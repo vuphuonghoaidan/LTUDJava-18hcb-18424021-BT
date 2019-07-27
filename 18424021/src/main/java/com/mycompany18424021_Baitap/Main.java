@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -75,6 +76,9 @@ public class Main {
                 break;
             case 2:
                 AddStudent();
+                break;
+            case 3:
+                DeleteStudent();
                 break;
             case 4:
                 ImportTimeTable();
@@ -243,5 +247,44 @@ public class Main {
         fw.write(st._MSSV + "," + st._HOTEN + "," + strSex + "," + st._CMND + '\n');
         
         fw.close();
+    }
+
+    private static void DeleteStudent() throws IOException {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Nhập tên lớp: ");
+        String ClassName = sc.nextLine();
+        if (ListStudentByClass.get(ClassName) == null){
+            System.out.println("Lớp không tồn tại!!");
+            return;
+        }else{
+            System.out.print("Nhập MSSV: ");
+            String mssv = sc.nextLine();
+            for (int i=0; i<ListStudentByClass.size();i++) {
+                if (ListStudentByClass.get(ClassName).get(i)._MSSV.equals(mssv)){
+                    //Delete student to list
+                    ListStudentByClass.get(ClassName).remove(i);
+                }
+            }
+            
+            for (int i=0; i<ListStudentByClass.size();i++) {
+                    FileWriter fw = new FileWriter("Data/" + ClassName + ".txt", true);
+                    //Delete student to list
+                    ListStudentByClass.get(ClassName).remove(i);
+                    Student st = new Student();
+                    st._MSSV = ListStudentByClass.get(ClassName).get(i)._MSSV;
+                    st._HOTEN = ListStudentByClass.get(ClassName).get(i)._HOTEN;
+                    st._CMND = ListStudentByClass.get(ClassName).get(i)._CMND;
+                    String strSex = "";
+                    if(ListStudentByClass.get(ClassName).get(i)._GT == true){
+                        strSex = "nam";
+                    }else {
+                        strSex = "nữ";
+                    }
+                    fw.write(st._MSSV + "," + st._HOTEN + "," + strSex + "," + st._CMND + '\n');
+
+                    fw.close();
+            }
+            System.out.println("Sinh viên không tồn tại!!");
+        }
     }
 }
