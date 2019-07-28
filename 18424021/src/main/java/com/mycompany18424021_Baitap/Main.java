@@ -88,7 +88,7 @@ public class Main {
                 System.out.println("Nhập tên lớp: ");
                 String tenlop = scan.nextLine();
                 boolean check = false;
-                if(tenlop == "" || tenlop == null){
+                if(!"".equals(tenlop) || tenlop != null){
                     for (int i = 0; i<ListNameClass.size();i++){
                         if(ListNameClass.get(i).equals(tenlop)){
                             check = true;
@@ -273,44 +273,47 @@ public class Main {
         fw.write(st._MSSV + "," + st._HOTEN + "," + strSex + "," + st._CMND + '\n');
         
         fw.close();
+        System.out.println("Thên thành công!!!");
     }
 
     private static void DeleteStudent() throws IOException {
         Scanner sc = new Scanner(System.in);
         System.out.print("Nhập tên lớp: ");
         String ClassName = sc.nextLine();
-        if (ListStudentByClass.get(ClassName) == null){
+        if (null == ListStudentByClass.get(ClassName)){
             System.out.println("Lớp không tồn tại!!");
             return;
         }else{
             System.out.print("Nhập MSSV: ");
             String mssv = sc.nextLine();
-            for (int i=0; i<ListStudentByClass.size();i++) {
-                if (ListStudentByClass.get(ClassName).get(i)._MSSV.equals(mssv)){
+            boolean check = false;
+            for (int j=0;j<ListStudentByClass.get(ClassName).size();j++) {
+                if (ListStudentByClass.get(ClassName).get(j)._MSSV.equals(mssv)){
                     //Delete student to list
-                    ListStudentByClass.get(ClassName).remove(i);
+                    ListStudentByClass.get(ClassName).remove(j);
+                    check = true;
                 }
             }
-            
-            for (int i=0; i<ListStudentByClass.size();i++) {
-                    FileWriter fw = new FileWriter("Data/" + ClassName + ".txt", true);
-                    //Delete student to list
-                    ListStudentByClass.get(ClassName).remove(i);
+            if(!check){
+                System.out.println("Sinh viên không tồn tại!!");
+                return;
+            }
+            FileWriter fw = new FileWriter("Data/" + ClassName + ".txt", true);
+            for (int i=0; i<ListStudentByClass.get(ClassName).size();i++) {                    
                     Student st = new Student();
                     st._MSSV = ListStudentByClass.get(ClassName).get(i)._MSSV;
                     st._HOTEN = ListStudentByClass.get(ClassName).get(i)._HOTEN;
                     st._CMND = ListStudentByClass.get(ClassName).get(i)._CMND;
-                    String strSex = "";
+                    String strSex;
                     if(ListStudentByClass.get(ClassName).get(i)._GT == true){
                         strSex = "nam";
                     }else {
                         strSex = "nữ";
                     }
                     fw.write(st._MSSV + "," + st._HOTEN + "," + strSex + "," + st._CMND + '\n');
-
-                    fw.close();
             }
-            System.out.println("Sinh viên không tồn tại!!");
+            System.out.println("Xóa thành công!!");
+            fw.close();
         }
     }
 }
