@@ -66,7 +66,7 @@ public class Main {
             System.out.println("11 - Đăng xuất:");
             System.out.println("12 - Đổi mật khẩu:");
             System.out.println();
-            System.out.println("Enter \"1\", \"2\" or \"3\"....");
+            System.out.println("Enter \"1\", \"2\" or \"3\"....:");
 
             choiceentry = sc.nextInt();
             
@@ -84,12 +84,29 @@ public class Main {
                 ImportTimeTable();
                 break;
             case 5:
-                for (int i = 0; i<ListNameClass.size();i++){
-                    ShowListStident(ListNameClass.get(i));
+                Scanner scan = new Scanner(System.in);
+                System.out.println("Nhập tên lớp: ");
+                String tenlop = scan.nextLine();
+                boolean check = false;
+                if(tenlop == "" || tenlop == null){
+                    for (int i = 0; i<ListNameClass.size();i++){
+                        if(ListNameClass.get(i).equals(tenlop)){
+                            check = true;
+                            ShowListStident(ListNameClass.get(i));
+                        } 
+                    }
+                    if(check){
+                        System.err.print("Hoàn tất!!! Nhập 1 + ENTER để tiếp tục!!");
+                        sc.next();
+                        break;
+                    }
+                    System.err.print("Lớp không tồn tại!! Nhập 1 + ENTER để tiếp tục");
+                    sc.next();
+                    break;
+                }else{
+                    System.out.println("Chưa nhập tên lớp!!! Vui lòng nhập!!!");
+                    break;
                 }
-                System.err.print("Nhấn Enter khi hoàn tất!!");
-                sc.next();
-                break;
             case 6:
                 ShowTimetable();
                 System.err.print("Nhấn Enter khi hoàn tất!!");
@@ -135,34 +152,40 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         System.out.print("Nhập đường dẫn đến file: ");
         String PathFile = sc.nextLine();
-        FileReader fr = new FileReader(PathFile);
-        FileWriter fw = new FileWriter(PathFile.replaceAll("csv", "txt"));
-        
-        BufferedReader br = new BufferedReader(fr);
-        ArrayList<Student> LstStudet = new ArrayList<Student>();
-        
-        String nameClass = br.readLine();
-        while (true){
-            Student st = new Student();
-            String str = br.readLine();
-            if (str == null)
-                break;
+        try {
+            FileReader fr = new FileReader(PathFile);
+            FileWriter fw = new FileWriter(PathFile.replaceAll("csv", "txt"));
 
-            st._MSSV = str.split(",")[0]; //set MSSV for student
-            st._HOTEN = str.split(",")[1]; //set Name for student
-            if (str.split(",")[2].equals("Nam"))
-                st._GT = true; //set true if is boy
-            else
-                st._GT = false; //set true if is girl
-            st._CMND = str.split(",")[3]; //set CMND for student
-            LstStudet.add(st);
-            
-            fw.write(str + '\n');
+            BufferedReader br = new BufferedReader(fr);
+            ArrayList<Student> LstStudet = new ArrayList<Student>();
 
+            String nameClass = br.readLine();
+            while (true){
+                Student st = new Student();
+                String str = br.readLine();
+                if (str == null)
+                    break;
+
+                st._MSSV = str.split(",")[0]; //set MSSV for student
+                st._HOTEN = str.split(",")[1]; //set Name for student
+                if (str.split(",")[2].equals("Nam"))
+                    st._GT = true; //set true if is boy
+                else
+                    st._GT = false; //set true if is girl
+                st._CMND = str.split(",")[3]; //set CMND for student
+                LstStudet.add(st);
+
+                fw.write(str + '\n');
+            }
+            ListStudentByClass.put(nameClass, LstStudet);
+            fr.close();
+            fw.close();
+            System.out.println("Import thành công!!!");
+        } catch (Exception e) {
+            System.out.println("Error:" + e);
+            return;
         }
-        ListStudentByClass.put(nameClass, LstStudet);
-        fr.close();
-        fw.close();
+        
         
     }
     
@@ -197,11 +220,14 @@ public class Main {
     
     // show List student
     public static void ShowListStident(String Key) throws IOException {
-        if (ListStudentByClass.get(Key) == null)
+        if (ListStudentByClass.get(Key) == null){
+            System.out.println("Lớp rỗng!!!!");
             return;
+        }
+            
         System.out.println("================" + Key + "================");
         for (int i = 0; i< ListStudentByClass.get(Key).size(); i++){
-            System.out.println(ListStudentByClass.get(Key).get(i)._MSSV +  '\t' +
+            System.out.println( (i+1)+"." + '\t' + ListStudentByClass.get(Key).get(i)._MSSV +  '\t' +
                     ListStudentByClass.get(Key).get(i)._HOTEN + '\t' +
                     (ListStudentByClass.get(Key).get(i)._GT == true ? "Nam" : "Nữ") + '\t' +
                     ListStudentByClass.get(Key).get(i)._CMND);
