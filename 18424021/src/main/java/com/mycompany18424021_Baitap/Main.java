@@ -298,7 +298,7 @@ public class Main {
                 System.out.println("Sinh viên không tồn tại!!");
                 return;
             }
-            FileWriter fw = new FileWriter("Data/" + ClassName + ".txt", true);
+            FileWriter fw = new FileWriter("Data/" + ClassName + ".txt");
             for (int i=0; i<ListStudentByClass.get(ClassName).size();i++) {                    
                     Student st = new Student();
                     st._MSSV = ListStudentByClass.get(ClassName).get(i)._MSSV;
