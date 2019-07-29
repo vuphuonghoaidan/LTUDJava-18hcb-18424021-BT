@@ -55,14 +55,14 @@ public class Main {
             System.out.println("Chọn tác vụ:");
             System.out.println("1 - Import danh sách lớp (file CSV) vào hệ thống:");
             System.out.println("2 - Thêm 1 sinh viên:");
-            System.out.println("3 - Xóa 1 sinh viên:");
-            System.out.println("4 - Import thời khóa biểu (file CSV) vào hệ thống:");
+            System.out.println("3 - Cập nhật 1 sinh viên:");
+            System.out.println("4 - Xóa 1 sinh viên:");
             System.out.println("5 - Xem danh sách lớp:");
-            System.out.println("6 - Xem thời khóa biểu:");
-            System.out.println("7 - Import bảng điểm(file CSV) vào hệ thống:");
-            System.out.println("8 - Xem bảng điểm:");
-            System.out.println("9 - Sửa điểm 1 sinh viên:");
-            System.out.println("10 - Import thời khóa biểu (file CSV) vào hệ thống:");
+            System.out.println("6 - Import thời khóa biểu (file CSV) vào hệ thống:");
+            System.out.println("7 - Xem thời khóa biểu:");
+            System.out.println("8 - Import bảng điểm(file CSV) vào hệ thống:");
+            System.out.println("9 - Xem bảng điểm:");
+            System.out.println("10 - Sửa điểm 1 sinh viên:");
             System.out.println("11 - Đăng xuất:");
             System.out.println("12 - Đổi mật khẩu:");
             System.out.println();
@@ -78,10 +78,10 @@ public class Main {
                 AddStudent();
                 break;
             case 3:
-                DeleteStudent();
+                UpdateStudent();
                 break;
             case 4:
-                ImportTimeTable();
+                DeleteStudent();
                 break;
             case 5:
                 Scanner scan = new Scanner(System.in);
@@ -108,6 +108,9 @@ public class Main {
                     break;
                 }
             case 6:
+                ImportTimeTable();
+                break;
+            case 7:
                 ShowTimetable();
                 System.err.print("Nhấn Enter khi hoàn tất!!");
                 sc.next();
@@ -313,6 +316,57 @@ public class Main {
                     fw.write(st._MSSV + "," + st._HOTEN + "," + strSex + "," + st._CMND + '\n');
             }
             System.out.println("Xóa thành công!!");
+            fw.close();
+        }
+    }
+
+    private static void UpdateStudent() throws IOException {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Nhập tên lớp: ");
+        String ClassName = sc.nextLine();
+        if (null == ListStudentByClass.get(ClassName)){
+            System.out.println("Lớp không tồn tại!!");
+            return;
+        }else{
+            Student st = new Student();
+            System.out.print("Nhập MSSV: ");
+            st._MSSV = sc.nextLine();
+            System.out.print("Nhập họ tên sinh viên: ");
+            st._HOTEN = sc.nextLine();
+            System.out.print("Nhập CMND: ");
+            st._CMND = sc.nextLine();
+            System.out.print("Nhập giới tính: ");
+            String strSex = sc.nextLine();
+            st._GT = (strSex.toLowerCase().equals("nam"));
+            boolean check = false;
+            for (int j=0;j<ListStudentByClass.get(ClassName).size();j++) {
+                if (ListStudentByClass.get(ClassName).get(j)._MSSV.equals(st._MSSV)){
+                    //Update student to list
+                    ListStudentByClass.get(ClassName).get(j)._HOTEN = st._HOTEN;
+                    ListStudentByClass.get(ClassName).get(j)._CMND = st._CMND;
+                    ListStudentByClass.get(ClassName).get(j)._GT = st._GT;
+                    check = true;
+                }
+            }
+            if(!check){
+                System.out.println("Sinh viên không tồn tại!!");
+                return;
+            }
+            FileWriter fw = new FileWriter("Data/" + ClassName + ".txt");
+            for (int i=0; i<ListStudentByClass.get(ClassName).size();i++) {                    
+                    Student st1 = new Student();
+                    st1._MSSV = ListStudentByClass.get(ClassName).get(i)._MSSV;
+                    st1._HOTEN = ListStudentByClass.get(ClassName).get(i)._HOTEN;
+                    st1._CMND = ListStudentByClass.get(ClassName).get(i)._CMND;
+                    String strSex1;
+                    if(ListStudentByClass.get(ClassName).get(i)._GT == true){
+                        strSex1 = "nam";
+                    }else {
+                        strSex1 = "nữ";
+                    }
+                    fw.write(st1._MSSV + "," + st1._HOTEN + "," + strSex1 + "," + st1._CMND + '\n');
+            }
+            System.out.println("Cập nhật thành công!!");
             fw.close();
         }
     }
