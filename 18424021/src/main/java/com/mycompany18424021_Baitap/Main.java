@@ -6,6 +6,7 @@
 package com.mycompany18424021_Baitap;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,6 +23,8 @@ public class Main {
     private static HashMap<String, ArrayList<Student>> ListStudentByClass = new HashMap<String, ArrayList<Student>>();
     private static ArrayList<String> ListNameClass = new ArrayList<String>();
     private static ArrayList<Subject> TimeTable = new ArrayList<Subject>();
+//    private static HashMap<String, ArrayList<Point>> PointTable = new HashMap<String, ArrayList<Point>>();
+
     
     public static void main(String[] args) throws IOException {
         FileReader frListNameClass = new FileReader("Data/listNameClass.csv");
@@ -112,13 +115,30 @@ public class Main {
                 break;
             case 7:
                 ShowTimetable();
-                System.err.print("Nhấn Enter khi hoàn tất!!");
+                System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
+                sc.next();
+                break;
+            case 8:
+                ImportPointTable();
+                System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
+                sc.next();
+                break;
+            case 11:
+                System.err.print("Bạn muốn đăng xuất bây giờ?? 1:ok 2:cancel: ");
+                int choose = sc.nextInt();
+                if(choose == 1){
+                    choiceentry = 13;
+                }
+                break;
+            case 12:
+                ChangePassword();
+                System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
                 sc.next();
                 break;
             default:
              // Làm gì đó tại đây ...
           }
-        }while(choiceentry != 11);
+        }while(choiceentry != 13);
 
         // end project
 //        fr.close();
@@ -369,5 +389,37 @@ public class Main {
             System.out.println("Cập nhật thành công!!");
             fw.close();
         }
+    }
+
+    private static void ImportPointTable() throws FileNotFoundException, IOException {
+//        Scanner sc = new Scanner(System.in);
+//        System.out.print("Nhập đường dẫn đến file: ");
+//        String PathFile = sc.nextLine();
+//        FileReader fr = new FileReader(PathFile);
+//        FileWriter fw = new FileWriter(PathFile.replaceAll("csv", "txt"));
+//        
+//        BufferedReader br = new BufferedReader(fr);
+//        
+//        while (true){
+//            Point p = new Point();
+//            String str = br.readLine();
+//            if (str == null)
+//                break;
+            
+//            p._ID = str.split(",")[0];//set _ID for Poin
+//            p._MSSV = str.split(",")[1]; //set _MSSV for Point
+//            p._NAMESubject = str.split(",")[2]; //set _NAMESubject for Point
+//            p._Point = str.split(",")[3]; //set POINT for Point
+//            PointTable.add(p);
+            
+//            fw.write(str + '\n');
+//
+//        }
+//        fr.close();
+//        fw.close();
+    }
+
+    private static void ChangePassword() {
+        
     }
 }
