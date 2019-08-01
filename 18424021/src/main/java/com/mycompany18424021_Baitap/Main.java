@@ -142,6 +142,11 @@ public class Main {
                 System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
                 sc.next();
                 break;
+            case 9:
+                UpdatePointTable();
+                System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
+                sc.next();
+                break;
             case 11:
                 System.err.print("Bạn muốn đăng xuất bây giờ?? 1:ok 2:cancel: ");
                 int choose = sc.nextInt();
@@ -470,5 +475,71 @@ public class Main {
 
     private static void ChangePassword() {
         
+    }
+
+    private static void UpdatePointTable() throws IOException {
+        int sldau=0, slrot=0;
+        float tyledau=0,tylerot=0;
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Nhập tên lớp: ");
+        String ClassName = sc.nextLine();
+        if (null == PointTable.get(ClassName)){
+            System.out.println("Lớp không có điểm!!");
+            return;
+        }else{
+            Point p = new Point();
+            System.out.print("Nhập MSSV: ");
+            p._MSSV = sc.nextLine();
+            System.out.print("Nhập họ tên sinh viên: ");
+            p._HOTEN = sc.nextLine();
+            System.out.print("Nhập điểm giữa kì: ");
+            p._DiemGK = sc.nextLine();
+            System.out.print("Nhập điểm cuối kì: ");
+            p._DiemCK = sc.nextLine();
+            System.out.print("Nhập điểm khác: ");
+            p._DiemKhac = sc.nextLine();
+            p._DiemTong = String.valueOf((Float.parseFloat(p._DiemGK) + Float.parseFloat(p._DiemCK) + Float.parseFloat(p._DiemKhac))/3);
+            if( Float.parseFloat(p._DiemTong) < 5){
+                    p._Danhgia = "rớt";
+                    slrot += 1;
+                }else{
+                    p._Danhgia = "đậu";
+                    sldau += 1;
+                }
+            boolean check = false;
+            for (int j=0;j< PointTable.get(ClassName).size();j++) {
+                if (PointTable.get(ClassName).get(j)._MSSV.equals(p._MSSV)){
+                    //Update point to list
+                    PointTable.get(ClassName).get(j)._HOTEN = p._HOTEN;
+                    PointTable.get(ClassName).get(j)._DiemGK = p._DiemGK;
+                    PointTable.get(ClassName).get(j)._DiemCK = p._DiemCK;
+                    PointTable.get(ClassName).get(j)._DiemTong = p._DiemTong;
+                    check = true;
+                }
+            }
+            if(!check){
+                System.out.println("Sinh viên không tồn tại!!");
+                return;
+            }
+            FileWriter fw = new FileWriter("Data/" + ClassName + ".txt");
+            for (int i=0; i<PointTable.get(ClassName).size();i++) {                    
+                    Point p1 = new Point();
+                    p1._MSSV = PointTable.get(ClassName).get(i)._MSSV;
+                    p1._HOTEN = PointTable.get(ClassName).get(i)._HOTEN;
+                    p1._DiemGK = PointTable.get(ClassName).get(i)._DiemGK;
+                    p1._DiemCK = PointTable.get(ClassName).get(i)._DiemCK;
+                    p1._DiemKhac = PointTable.get(ClassName).get(i)._DiemKhac;
+                    p1._Danhgia = PointTable.get(ClassName).get(i)._Danhgia;
+                 
+                    fw.write(p1._MSSV + "," + p1._HOTEN + "," + p1._DiemGK + "," + p1._DiemCK + "," + p1._DiemKhac + "," + p1._Danhgia + '\n');
+            }
+            
+            tylerot = (slrot * 100) / PointTable.get(ClassName).size();
+            tyledau = (sldau * 100) / PointTable.get(ClassName).size();
+            fw.write("Tỷ lệ rớt:" + tylerot + '\n');
+            fw.write("Tỷ lệ đậu:" + tyledau + '\n');
+            System.out.println("Cập nhật thành công!!");
+            fw.close();
+        }
     }
 }
