@@ -22,8 +22,8 @@ import java.util.Scanner;
 public class Main {
     private static HashMap<String, ArrayList<Student>> ListStudentByClass = new HashMap<String, ArrayList<Student>>();
     private static ArrayList<String> ListNameClass = new ArrayList<String>();
-    private static ArrayList<Subject> TimeTable = new ArrayList<Subject>();
-//    private static HashMap<String, ArrayList<Point>> PointTable = new HashMap<String, ArrayList<Point>>();
+    private static HashMap<String, ArrayList<Subject>> TimeTable = new HashMap<String, ArrayList<Subject>>();
+    private static HashMap<String, ArrayList<Point>> PointTable = new HashMap<String, ArrayList<Point>>();
 
     
     public static void main(String[] args) throws IOException {
@@ -114,10 +114,29 @@ public class Main {
                 ImportTimeTable();
                 break;
             case 7:
-                ShowTimetable();
-                System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
-                sc.next();
-                break;
+                Scanner scan1 = new Scanner(System.in);
+                System.out.println("Nhập tên lớp: ");
+                String tenlop1 = scan1.nextLine();
+                boolean check1 = false;
+                if(!"".equals(tenlop1) || tenlop1 != null){
+                    for (int i = 0; i<ListNameClass.size();i++){
+                        if(ListNameClass.get(i).equals(tenlop1)){
+                            check = true;
+                            ShowTimetable(ListNameClass.get(i));
+                        } 
+                    }
+                    if(check1){
+                        System.err.print("Hoàn tất!!! Nhập 1 + ENTER để tiếp tục!!");
+                        sc.next();
+                        break;
+                    }
+                    System.err.print("Lớp không tồn tại!! Nhập 1 + ENTER để tiếp tục");
+                    sc.next();
+                    break;
+                }else{
+                    System.out.println("Chưa nhập tên lớp!!! Vui lòng nhập!!!");
+                    break;
+                }
             case 8:
                 ImportPointTable();
                 System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
@@ -177,7 +196,7 @@ public class Main {
         String PathFile = sc.nextLine();
         try {
             FileReader fr = new FileReader(PathFile);
-            FileWriter fw = new FileWriter(PathFile.replaceAll("csv", "txt"));
+            FileWriter fw = new FileWriter((PathFile + "_diem").replaceAll("csv", "txt"));
 
             BufferedReader br = new BufferedReader(fr);
             ArrayList<Student> LstStudet = new ArrayList<Student>();
@@ -208,8 +227,6 @@ public class Main {
             System.out.println("Error:" + e);
             return;
         }
-        
-        
     }
     
     // import file Timetable
@@ -218,10 +235,11 @@ public class Main {
         System.out.print("Nhập đường dẫn đến file: ");
         String PathFile = sc.nextLine();
         FileReader fr = new FileReader(PathFile);
-        FileWriter fw = new FileWriter(PathFile.replaceAll("csv", "txt"));
+        FileWriter fw = new FileWriter((PathFile + "_tkb").replaceAll("csv", "txt"));
         
         BufferedReader br = new BufferedReader(fr);
-        
+        ArrayList<Subject> LstSubject = new ArrayList<Subject>();
+        String nameClass = br.readLine();
         while (true){
             Subject sj = new Subject();
             String str = br.readLine();
@@ -231,11 +249,12 @@ public class Main {
             sj._ID = str.split(",")[0]; //set ID for subject
             sj._NAME = str.split(",")[1]; //set Name for subject
             sj._ROOM = str.split(",")[2]; //set ROOM for subject
-            TimeTable.add(sj);
+            LstSubject.add(sj);
             
             fw.write(str + '\n');
 
         }
+        TimeTable.put(nameClass, LstSubject);
         fr.close();
         fw.close();
         
@@ -258,12 +277,17 @@ public class Main {
     }
     
     // show timetable
-    public static void ShowTimetable() throws IOException {
+    public static void ShowTimetable(String Key) throws IOException {
+        if (TimeTable.get(Key) == null){
+            System.out.println("Lớp rỗng!!!!");
+            return;
+        }
+        
         System.out.println("================" + "TIMETABLE" + "================");
         for (int i = 0; i< TimeTable.size(); i++){
-            System.out.println(TimeTable.get(i)._ID +  '\t' +
-                    TimeTable.get(i)._NAME + '\t' +
-                    TimeTable.get(i)._ROOM);
+            System.out.println(TimeTable.get(Key).get(i)._ID +  '\t' +
+                    TimeTable.get(Key).get(i)._NAME + '\t' +
+                    TimeTable.get(Key).get(i)._ROOM);
         }
     }
     
@@ -299,6 +323,7 @@ public class Main {
         System.out.println("Thên thành công!!!");
     }
 
+    // Delete Student
     private static void DeleteStudent() throws IOException {
         Scanner sc = new Scanner(System.in);
         System.out.print("Nhập tên lớp: ");
@@ -340,6 +365,7 @@ public class Main {
         }
     }
 
+    // Update Student
     private static void UpdateStudent() throws IOException {
         Scanner sc = new Scanner(System.in);
         System.out.print("Nhập tên lớp: ");
@@ -392,31 +418,54 @@ public class Main {
     }
 
     private static void ImportPointTable() throws FileNotFoundException, IOException {
-//        Scanner sc = new Scanner(System.in);
-//        System.out.print("Nhập đường dẫn đến file: ");
-//        String PathFile = sc.nextLine();
-//        FileReader fr = new FileReader(PathFile);
-//        FileWriter fw = new FileWriter(PathFile.replaceAll("csv", "txt"));
-//        
-//        BufferedReader br = new BufferedReader(fr);
-//        
-//        while (true){
-//            Point p = new Point();
-//            String str = br.readLine();
-//            if (str == null)
-//                break;
-            
-//            p._ID = str.split(",")[0];//set _ID for Poin
-//            p._MSSV = str.split(",")[1]; //set _MSSV for Point
-//            p._NAMESubject = str.split(",")[2]; //set _NAMESubject for Point
-//            p._Point = str.split(",")[3]; //set POINT for Point
-//            PointTable.add(p);
-            
-//            fw.write(str + '\n');
-//
-//        }
-//        fr.close();
-//        fw.close();
+        int sldau=0, slrot=0;
+        float tyledau=0,tylerot=0;
+        
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Nhập đường dẫn đến file: ");
+        String PathFile = sc.nextLine();
+        try {
+            FileReader fr = new FileReader(PathFile);
+            FileWriter fw = new FileWriter(PathFile.replaceAll("csv", "txt"));
+
+            BufferedReader br = new BufferedReader(fr);
+            ArrayList<Point> LstPoint = new ArrayList<Point>();
+
+            String nameSuject = br.readLine();
+            while (true){
+                Point p = new Point();
+                String str = br.readLine();
+                if (str == null)
+                    break;
+
+                p._MSSV = str.split(",")[0]; //set MSSV for student
+                p._HOTEN = str.split(",")[1]; //set Name for student
+                p._DiemGK = str.split(",")[2];//set _DiemGK for student
+                p._DiemCK = str.split(",")[3]; //set _DiemCK for student
+                p._DiemKhac = str.split(",")[3]; //set _DiemKhac for student
+                p._DiemTong = str.split(",")[3]; //set _DiemTong for student
+                if( Float.parseFloat(p._DiemTong) < 5){
+                    p._Danhgia = "rớt";
+                    slrot += 1;
+                }else{
+                    p._Danhgia = "đậu";
+                    sldau += 1;
+                }
+                LstPoint.add(p);
+                fw.write(str + '\n');
+            }
+            PointTable.put(nameSuject, LstPoint);
+            tylerot = (slrot * 100) / LstPoint.size();
+            tyledau = (sldau * 100) / LstPoint.size();
+            fw.write("Tỷ lệ rớt:" + tylerot + '\n');
+            fw.write("Tỷ lệ đậu:" + tyledau + '\n');
+            fr.close();
+            fw.close();
+            System.out.println("Import thành công!!!");
+        } catch (Exception e) {
+            System.out.println("Error:" + e);
+            return;
+        }
     }
 
     private static void ChangePassword() {
