@@ -35,13 +35,15 @@ public class Main {
         String AccountLogin = "";
         String User = "";
         String Pass = "";
+        String CV = "";
 
         //login
-//        do{
-//            AccountLogin = Login();
-//        }while(AccountLogin.equals(""));
-//        User = AccountLogin.split(" ")[0];
-//        Pass = AccountLogin.split(" ")[1];
+        do{
+            AccountLogin = Login();
+        }while(AccountLogin.equals(""));
+        User = AccountLogin.split(" ")[0];
+        Pass = AccountLogin.split(" ")[1];
+        CV = AccountLogin.split(" ")[2];
         int choiceentry;
         
         //read ListNameClass
@@ -143,6 +145,27 @@ public class Main {
                 sc.next();
                 break;
             case 9:
+                Scanner scan2 = new Scanner(System.in);
+                System.out.println("Nhập tên lớp: ");
+                String tenlop2 = scan2.nextLine();
+                boolean check2 = false;
+                if(!"".equals(tenlop2) || tenlop2 != null){
+                    for (int i = 0; i<ListNameClass.size();i++){
+                        if(ListNameClass.get(i).equals(tenlop2)){
+                            check = true;
+                           ShowPointTable(ListNameClass.get(i));
+                        } 
+                    }
+                    if(check2){
+                        System.err.print("Hoàn tất!!! Nhập 1 + ENTER để tiếp tục!!");
+                        sc.next();
+                        break;
+                    }
+                }else{
+                    System.out.println("Chưa nhập tên lớp!!! Vui lòng nhập!!!");
+                    break;
+                }
+            case 10:
                 UpdatePointTable();
                 System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
                 sc.next();
@@ -155,7 +178,7 @@ public class Main {
                 }
                 break;
             case 12:
-                ChangePassword();
+                ChangePassword(User,Pass);
                 System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
                 sc.next();
                 break;
@@ -170,7 +193,7 @@ public class Main {
     }
     
     public static String Login() throws IOException {
-        FileReader fr = new FileReader("Data/accountTeacher.csv");
+        FileReader fr = new FileReader("Data/account.csv");
         BufferedReader br = new BufferedReader(fr);
         
         String us = "";
@@ -184,13 +207,12 @@ public class Main {
         
         while(true){
             String Acc = br.readLine();
-            if (Acc == null) 
+            if (Acc == null)
                 return "";
             
             if (Acc.split(" ")[0].equals(us) && Acc.split(" ")[1].equals(pass)){
                 return us + " " + pass;
             }
-                
         }
     }
     
@@ -473,8 +495,16 @@ public class Main {
         }
     }
 
-    private static void ChangePassword() {
-        
+    private static void ChangePassword(String _User,String _Pass) throws IOException {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("User mane: " + _User);
+        System.out.println("Nhập pass cũ: ");
+        String pass = sc.nextLine();
+        if(pass.equals(_Pass)){
+            FileWriter fw = new FileWriter("account".replaceAll("csv", "txt"));
+            System.out.println("Nhập pass mới: ");
+            pass = sc.nextLine();
+        }
     }
 
     private static void UpdatePointTable() throws IOException {
@@ -541,5 +571,33 @@ public class Main {
             System.out.println("Cập nhật thành công!!");
             fw.close();
         }
+    }
+
+    private static void ShowPointTable(String Key) {
+        if (PointTable.get(Key) == null){
+            System.out.println("Lớp chưa có điểm!!!!");
+            return;
+        }
+        int sldau=0, slrot=0;
+        float tyledau=0,tylerot=0;
+        System.out.println("================" + "POINTTABLE" + "================");
+        for (int i = 0; i< PointTable.size(); i++){
+            System.out.println(PointTable.get(Key).get(i)._MSSV+  '\t' +
+                    PointTable.get(Key).get(i)._HOTEN + '\t' +
+                    PointTable.get(Key).get(i)._DiemGK + '\t' +
+                    PointTable.get(Key).get(i)._DiemCK + '\t' +
+                    PointTable.get(Key).get(i)._DiemKhac + '\t' +
+                    PointTable.get(Key).get(i)._DiemTong + '\t' +
+                    PointTable.get(Key).get(i)._Danhgia);
+            if( Float.parseFloat(PointTable.get(Key).get(i)._DiemTong) < 5){
+                    slrot += 1;
+                }else{
+                    sldau += 1;
+                }
+        }
+        tylerot = (slrot * 100) / PointTable.get(Key).size();
+        tyledau = (sldau * 100) / PointTable.get(Key).size();
+        System.out.println("Tỷ lệ rớt:" + tylerot + '\n');
+        System.out.println("Tỷ lệ đậu:" + tyledau + '\n');
     }
 }
