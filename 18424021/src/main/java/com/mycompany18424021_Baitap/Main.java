@@ -20,6 +20,7 @@ import java.util.Scanner;
  * @author WINPC
  */
 public class Main {
+    private static ArrayList<Users> ListUser = new ArrayList<Users>();
     private static HashMap<String, ArrayList<Student>> ListStudentByClass = new HashMap<String, ArrayList<Student>>();
     private static ArrayList<String> ListNameClass = new ArrayList<String>();
     private static HashMap<String, ArrayList<Subject>> TimeTable = new HashMap<String, ArrayList<Subject>>();
@@ -32,7 +33,7 @@ public class Main {
         FileWriter fw = new FileWriter("Data/out.txt");
         Scanner sc = new Scanner(System.in);
         
-        String AccountLogin = "";
+        Users AccountLogin = new Users();
         String User = "";
         String Pass = "";
         String CV = "";
@@ -40,10 +41,10 @@ public class Main {
         //login
         do{
             AccountLogin = Login();
-        }while(AccountLogin.equals(""));
-        User = AccountLogin.split(" ")[0];
-        Pass = AccountLogin.split(" ")[1];
-        CV = AccountLogin.split(" ")[2];
+        }while(AccountLogin == null);
+        User = AccountLogin._USER;
+        Pass = AccountLogin._PASS;
+        CV = AccountLogin._CV;
         int choiceentry;
         
         //read ListNameClass
@@ -53,6 +54,41 @@ public class Main {
                 break;
             
             ListNameClass.add(NameClass);
+        }
+        
+        if(CV.equals("2")){
+            do{
+                System.out.println("Chọn tác vụ:");
+                System.out.println("1 - Xem điểm:");
+                System.out.println("2 - Đăng xuất:");
+                System.out.println("3 - Đổi mật khẩu:");
+                System.out.println();
+                System.out.println("Enter \"1\", \"2\" or \"3\"....:");
+
+                choiceentry = sc.nextInt();
+
+                switch ( choiceentry ) {
+                case 1:
+                    ShowPointTableMSSV(User);
+                    System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
+                    sc.next();
+                    break;
+                case 2:
+                    System.err.print("Bạn muốn đăng xuất bây giờ?? 1:ok 2:cancel: ");
+                    int choose = sc.nextInt();
+                    if(choose == 1){
+                        choiceentry = 13;
+                    }
+                    break;
+                case 3:
+                    ChangePassword(User,Pass,CV);
+                    System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
+                    sc.next();
+                    break;
+                default:
+                    AccountLogin = Login();
+              }
+            }while(choiceentry != 13);
         }
         
         //menu
@@ -146,23 +182,24 @@ public class Main {
                 break;
             case 9:
                 Scanner scan2 = new Scanner(System.in);
-                System.out.println("Nhập tên lớp: ");
-                String tenlop2 = scan2.nextLine();
+                System.out.println("Nhập tên môn học: ");
+                String tenmonhoc = scan2.nextLine();
                 boolean check2 = false;
-                if(!"".equals(tenlop2) || tenlop2 != null){
-                    for (int i = 0; i<ListNameClass.size();i++){
-                        if(ListNameClass.get(i).equals(tenlop2)){
-                            check = true;
-                           ShowPointTable(ListNameClass.get(i));
-                        } 
+                if(!"".equals(tenmonhoc) || tenmonhoc != null){
+                    for (int i = 0; i<PointTable.size();i++){
+                           check2 = ShowPointTable(tenmonhoc);
                     }
                     if(check2){
                         System.err.print("Hoàn tất!!! Nhập 1 + ENTER để tiếp tục!!");
                         sc.next();
                         break;
                     }
+                    System.err.print("Hoàn tất!!! Nhập 1 + ENTER để tiếp tục!!");
+                    sc.next();
+                    break;
                 }else{
-                    System.out.println("Chưa nhập tên lớp!!! Vui lòng nhập!!!");
+                    System.out.println("Chưa nhập tên môn học!!! Nhập 1 + ENTER để tiếp tục!!!");
+                    sc.next();
                     break;
                 }
             case 10:
@@ -178,26 +215,38 @@ public class Main {
                 }
                 break;
             case 12:
-                ChangePassword(User,Pass);
+                ChangePassword(User,Pass,CV);
                 System.err.print("Nhấn 1 + Enter khi hoàn tất!!");
                 sc.next();
                 break;
             default:
-             // Làm gì đó tại đây ...
+                AccountLogin = Login();
           }
-        }while(choiceentry != 13);
+        }while(choiceentry < 13);
 
         // end project
 //        fr.close();
         fw.close();
     }
     
-    public static String Login() throws IOException {
+    public static Users Login() throws IOException {
         FileReader fr = new FileReader("Data/account.csv");
         BufferedReader br = new BufferedReader(fr);
         
+        while (true){
+            Users us = new Users();
+            String str = br.readLine();
+            if (str == null)
+                break;
+            us._USER = str.split(",")[0]; //set _USER for student
+            us._PASS = str.split(",")[1]; //set _PASS for student
+            us._CV = str.split(",")[2];//set _CV for student
+            ListUser.add(us);
+        }
+        
         String us = "";
         String pass = "";
+        String cv = "";
         Scanner sc = new Scanner(System.in);
         
         System.out.print("Nhập tên User: ");
@@ -205,15 +254,14 @@ public class Main {
         System.out.print("Nhập mật khẩu: ");
         pass = sc.nextLine();
         
-        while(true){
-            String Acc = br.readLine();
-            if (Acc == null)
-                return "";
-            
-            if (Acc.split(" ")[0].equals(us) && Acc.split(" ")[1].equals(pass)){
-                return us + " " + pass;
+        for (int i=0; i<ListUser.size();i++) {
+            if (ListUser.get(i)._USER.equals(us) && ListUser.get(i)._PASS.equals(pass)){
+                cv = ListUser.get(i)._CV;
+                return ListUser.get(i);
             }
         }
+        fr.close();
+        return null;
     }
     
     // import file List student
@@ -223,7 +271,7 @@ public class Main {
         String PathFile = sc.nextLine();
         try {
             FileReader fr = new FileReader(PathFile);
-            FileWriter fw = new FileWriter((PathFile + "_diem").replaceAll("csv", "txt"));
+            FileWriter fw = new FileWriter(PathFile.replaceAll("csv", "txt"));
 
             BufferedReader br = new BufferedReader(fr);
             ArrayList<Student> LstStudet = new ArrayList<Student>();
@@ -453,7 +501,7 @@ public class Main {
         String PathFile = sc.nextLine();
         try {
             FileReader fr = new FileReader(PathFile);
-            FileWriter fw = new FileWriter(PathFile.replaceAll("csv", "txt"));
+            FileWriter fw = new FileWriter((PathFile + "_diem").replaceAll("csv", "txt"));
 
             BufferedReader br = new BufferedReader(fr);
             ArrayList<Point> LstPoint = new ArrayList<Point>();
@@ -469,8 +517,8 @@ public class Main {
                 p._HOTEN = str.split(",")[1]; //set Name for student
                 p._DiemGK = str.split(",")[2];//set _DiemGK for student
                 p._DiemCK = str.split(",")[3]; //set _DiemCK for student
-                p._DiemKhac = str.split(",")[3]; //set _DiemKhac for student
-                p._DiemTong = str.split(",")[3]; //set _DiemTong for student
+                p._DiemKhac = str.split(",")[4]; //set _DiemKhac for student
+                p._DiemTong = str.split(",")[5]; //set _DiemTong for student
                 if( Float.parseFloat(p._DiemTong) < 5){
                     p._Danhgia = "rớt";
                     slrot += 1;
@@ -490,31 +538,40 @@ public class Main {
             fw.close();
             System.out.println("Import thành công!!!");
         } catch (Exception e) {
-            System.out.println("Error:" + e);
+            System.out.println("\n Error:" + e);
             return;
         }
     }
 
-    private static void ChangePassword(String _User,String _Pass) throws IOException {
+    private static void ChangePassword(String _User,String _Pass, String _CV) throws IOException {
         Scanner sc = new Scanner(System.in);
         System.out.println("User mane: " + _User);
         System.out.println("Nhập pass cũ: ");
         String pass = sc.nextLine();
-        if(pass.equals(_Pass)){
-            FileWriter fw = new FileWriter("account".replaceAll("csv", "txt"));
-            System.out.println("Nhập pass mới: ");
-            pass = sc.nextLine();
+        if(_Pass.equals(pass)){
+                System.out.println("Nhập pass mới: ");
+                pass = sc.nextLine();
         }
+        for (int i=0;i<ListUser.size();i++) {
+            if(ListUser.get(i)._USER.equals(_User)){
+                ListUser.get(i)._PASS = pass;
+            }
+        }
+        FileWriter fw = new FileWriter("Data/account.csv");
+        for (int j=0;j<ListUser.size();j++) {
+            fw.write(ListUser.get(j)._USER + "," + ListUser.get(j)._PASS + "," + ListUser.get(j)._CV + '\n');
+        }
+        fw.close();
     }
 
     private static void UpdatePointTable() throws IOException {
         int sldau=0, slrot=0;
         float tyledau=0,tylerot=0;
         Scanner sc = new Scanner(System.in);
-        System.out.print("Nhập tên lớp: ");
-        String ClassName = sc.nextLine();
-        if (null == PointTable.get(ClassName)){
-            System.out.println("Lớp không có điểm!!");
+        System.out.print("Nhập tên môn học: ");
+        String SubjectName = sc.nextLine();
+        if (null == PointTable.get(SubjectName)){
+            System.out.println("Môn học không có điểm!!");
             return;
         }else{
             Point p = new Point();
@@ -531,19 +588,19 @@ public class Main {
             p._DiemTong = String.valueOf((Float.parseFloat(p._DiemGK) + Float.parseFloat(p._DiemCK) + Float.parseFloat(p._DiemKhac))/3);
             if( Float.parseFloat(p._DiemTong) < 5){
                     p._Danhgia = "rớt";
-                    slrot += 1;
                 }else{
                     p._Danhgia = "đậu";
-                    sldau += 1;
                 }
             boolean check = false;
-            for (int j=0;j< PointTable.get(ClassName).size();j++) {
-                if (PointTable.get(ClassName).get(j)._MSSV.equals(p._MSSV)){
+            for (int j=0;j< PointTable.get(SubjectName).size();j++) {
+                if (PointTable.get(SubjectName).get(j)._MSSV.equals(p._MSSV)){
                     //Update point to list
-                    PointTable.get(ClassName).get(j)._HOTEN = p._HOTEN;
-                    PointTable.get(ClassName).get(j)._DiemGK = p._DiemGK;
-                    PointTable.get(ClassName).get(j)._DiemCK = p._DiemCK;
-                    PointTable.get(ClassName).get(j)._DiemTong = p._DiemTong;
+                    PointTable.get(SubjectName).get(j)._HOTEN = p._HOTEN;
+                    PointTable.get(SubjectName).get(j)._DiemGK = p._DiemGK;
+                    PointTable.get(SubjectName).get(j)._DiemCK = p._DiemCK;
+                    PointTable.get(SubjectName).get(j)._DiemKhac = p._DiemKhac;
+                    PointTable.get(SubjectName).get(j)._DiemTong = p._DiemTong;
+                    PointTable.get(SubjectName).get(j)._Danhgia = p._Danhgia;
                     check = true;
                 }
             }
@@ -551,21 +608,27 @@ public class Main {
                 System.out.println("Sinh viên không tồn tại!!");
                 return;
             }
-            FileWriter fw = new FileWriter("Data/" + ClassName + ".txt");
-            for (int i=0; i<PointTable.get(ClassName).size();i++) {                    
+            FileWriter fw = new FileWriter("Data/" + SubjectName + "_diem" + ".txt");
+            for (int i=0; i<PointTable.get(SubjectName).size();i++) {                    
                     Point p1 = new Point();
-                    p1._MSSV = PointTable.get(ClassName).get(i)._MSSV;
-                    p1._HOTEN = PointTable.get(ClassName).get(i)._HOTEN;
-                    p1._DiemGK = PointTable.get(ClassName).get(i)._DiemGK;
-                    p1._DiemCK = PointTable.get(ClassName).get(i)._DiemCK;
-                    p1._DiemKhac = PointTable.get(ClassName).get(i)._DiemKhac;
-                    p1._Danhgia = PointTable.get(ClassName).get(i)._Danhgia;
+                    p1._MSSV = PointTable.get(SubjectName).get(i)._MSSV;
+                    p1._HOTEN = PointTable.get(SubjectName).get(i)._HOTEN;
+                    p1._DiemGK = PointTable.get(SubjectName).get(i)._DiemGK;
+                    p1._DiemCK = PointTable.get(SubjectName).get(i)._DiemCK;
+                    p1._DiemKhac = PointTable.get(SubjectName).get(i)._DiemKhac;
+                    p1._DiemTong = PointTable.get(SubjectName).get(i)._DiemTong;
+                    p1._Danhgia = PointTable.get(SubjectName).get(i)._Danhgia;
                  
-                    fw.write(p1._MSSV + "," + p1._HOTEN + "," + p1._DiemGK + "," + p1._DiemCK + "," + p1._DiemKhac + "," + p1._Danhgia + '\n');
+                    fw.write(p1._MSSV + "," + p1._HOTEN + "," + p1._DiemGK + "," + p1._DiemCK + "," + p1._DiemKhac + "," + p1._DiemTong + "," + p1._Danhgia + '\n');
+                    if( Float.parseFloat(p1._DiemTong) < 5){
+                        slrot +=1;
+                    }else{
+                        sldau +=1;
+                    }
             }
             
-            tylerot = (slrot * 100) / PointTable.get(ClassName).size();
-            tyledau = (sldau * 100) / PointTable.get(ClassName).size();
+            tylerot = (slrot * 100) / PointTable.get(SubjectName).size();
+            tyledau = (sldau * 100) / PointTable.get(SubjectName).size();
             fw.write("Tỷ lệ rớt:" + tylerot + '\n');
             fw.write("Tỷ lệ đậu:" + tyledau + '\n');
             System.out.println("Cập nhật thành công!!");
@@ -573,15 +636,15 @@ public class Main {
         }
     }
 
-    private static void ShowPointTable(String Key) {
+    private static boolean ShowPointTable(String Key) {
         if (PointTable.get(Key) == null){
-            System.out.println("Lớp chưa có điểm!!!!");
-            return;
+            System.out.println("Môn học không tồn tại!!!!");
+            return false;
         }
         int sldau=0, slrot=0;
         float tyledau=0,tylerot=0;
         System.out.println("================" + "POINTTABLE" + "================");
-        for (int i = 0; i< PointTable.size(); i++){
+        for (int i = 0; i< PointTable.get(Key).size(); i++){
             System.out.println(PointTable.get(Key).get(i)._MSSV+  '\t' +
                     PointTable.get(Key).get(i)._HOTEN + '\t' +
                     PointTable.get(Key).get(i)._DiemGK + '\t' +
@@ -597,7 +660,21 @@ public class Main {
         }
         tylerot = (slrot * 100) / PointTable.get(Key).size();
         tyledau = (sldau * 100) / PointTable.get(Key).size();
-        System.out.println("Tỷ lệ rớt:" + tylerot + '\n');
-        System.out.println("Tỷ lệ đậu:" + tyledau + '\n');
+        System.out.println("Tỷ lệ rớt:" + tylerot);
+        System.out.println("Tỷ lệ đậu:" + tyledau);
+        return true;
+    }
+
+    private static void ShowPointTableMSSV(String User) {
+        System.out.println("================" + User + "================");
+        for (int i = 0; i< PointTable.size(); i++){
+            for (int j=0;i<PointTable.get(i).size();j++){
+                System.out.println(PointTable.get(i).get(j)._MSSV+  '\t' + PointTable.get(i).get(j)._HOTEN + '\t' + PointTable.get(i).get(j)._DiemGK + '\t' +
+                    PointTable.get(i).get(j)._DiemCK + '\t' +
+                    PointTable.get(i).get(j)._DiemKhac + '\t' +
+                    PointTable.get(i).get(j)._DiemTong + '\t' +
+                    PointTable.get(i).get(j)._Danhgia);
+            } 
+        }
     }
 }
